@@ -47,6 +47,21 @@
         throw new Exception("Globalization folders cannot be found");
     }
 
+    [NotNull]
+    private bool AnyCultureFolderExists([NotNull] params string[] cultureNames)
+    {
+        Assert.ArgumentNotNull(cultureNames, "cultureNames");
+        foreach (var cultureName in cultureNames)
+        {
+            var culturePath = Server.MapPath(RootGlobalizeFolder + cultureName);
+            if (Directory.Exists(culturePath))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 @{
     var userControl = this.Html.Sitecore().Controls().GetUserControl(this.Model.Rendering);
@@ -67,6 +82,13 @@
     var cultureName = ClientHost.Context.Culture.Name;
     var threeLetterIsocode = ClientHost.Context.Culture.ThreeLetterISOLanguageName;
     var twoLetterIsocode = ClientHost.Context.Culture.TwoLetterISOLanguageName;
+
+    if (!AnyCultureFolderExists(cultureName, twoLetterIsocode))
+    {
+        cultureName = "en";
+        threeLetterIsocode = "eng";
+        twoLetterIsocode = "en";
+    }
 
     var contentDatabaseName = Sitecore.Context.ContentDatabase.Name;
     var dataBaseName = Sitecore.Context.Database.Name;
